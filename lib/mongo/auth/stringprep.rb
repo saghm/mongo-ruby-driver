@@ -6,31 +6,27 @@ module Mongo
       extend self
 
       def prepare(data, mappings, prohibited, options = {})
-        out = apply_maps(data, mappings)
-        normalize(out) if options[:normalize]
-        check_prohibited(out, prohibited)
-        check_bidi(out) if options[:bidi]
-        out
+        mapped = apply_maps(data, mappings)
+        normalize(mapped) if options[:normalize]
+        check_prohibited(mapped, prohibited)
+        check_bidi(mapped) if options[:bidi]
+        mapped
       end
 
       private
 
       def apply_maps(data, mappings)
-        out = ''
-
-        data.each_char do |c|
+        data.inject('') do |out, c|
           out << mapping(c, mappings)
         end
-
-        out
       end
 
       def check_bidi(out)
-        if out.any{ |c| table_contains?(Tables::C8, c) }
+        if out.each_char.any? { |c| table_contains?(Tables::C8, c) }
           raise Mongo::Error::StringPrep.new(Error::StringPrep::INVALID_BIDIRECTIONAL)
         end
 
-        if out.any { |c| table_contains?(Tables::D1, c) }
+        if out.each_char.any? { |c| table_contains?(Tables::D1, c) }
           unless table_contains?(Tables::D1, out.first) && table_contains?(Tables::D1, out.last)
             raise Mongo::Error::StringPrep.new(Error::StringPrep::INVALID_BIDIRECTIONAL)
           end
