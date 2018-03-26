@@ -27,12 +27,12 @@ module Mongo
 
       def check_bidi(out)
         if out.any? { |c| table_contains?(Tables::C8, c) }
-          raise Error::StringPrep(Error::StringPrep::INVALID_BIDIRECTIONAL)
+          raise Mongo::Error::StringPrep.new(Error::StringPrep::INVALID_BIDIRECTIONAL)
         end
 
         if out.any? { |c| table_contains?(Tables::D1, c) }
           unless table_contains?(Tables::D1, out.first) && table_contains?(Tables::D1, out.last)
-            raise Error::StringPrep(Error::StringPrep::INVALID_BIDIRECTIONAL)
+            raise Mongo::Error::StringPrep.new(Error::StringPrep::INVALID_BIDIRECTIONAL)
           end
         end
       end
@@ -49,9 +49,7 @@ module Mongo
 
       def mapping(c, mappings)
         m = mappings.find { |m| m.has_key?(c) }
-        return c if m.nil?
-
-        m[c]
+        (m && m[c]) || c
       end
 
       def normalize(out)
