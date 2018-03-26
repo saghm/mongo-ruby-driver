@@ -26,11 +26,11 @@ module Mongo
       end
 
       def check_bidi(out)
-        if out.each { |c| table_contains?(Tables::C8, c) }
+        if out.any{ |c| table_contains?(Tables::C8, c) }
           raise Mongo::Error::StringPrep.new(Error::StringPrep::INVALID_BIDIRECTIONAL)
         end
 
-        if out.each { |c| table_contains?(Tables::D1, c) }
+        if out.any { |c| table_contains?(Tables::D1, c) }
           unless table_contains?(Tables::D1, out.first) && table_contains?(Tables::D1, out.last)
             raise Mongo::Error::StringPrep.new(Error::StringPrep::INVALID_BIDIRECTIONAL)
           end
