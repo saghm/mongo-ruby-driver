@@ -4,6 +4,9 @@ module Mongo
   module Auth
     module StringPrep
       module Profiles
+        # Contains the mappings and prohibited lists for SASLPrep (RFC 4013).
+        #
+        # @since 2.6.0
         module SASL
           MAP_NON_ASCII_TO_SPACE = {
             0x00A0 => [0x0020],
@@ -25,11 +28,17 @@ module Mongo
             0x3000 => [0x0020],
           }.freeze
 
+          # The mappings to use for SASL string preparation.
+          #
+          # @since 2.6.0
           MAPPINGS = [
             Tables::B1,
             MAP_NON_ASCII_TO_SPACE,
           ].freeze
 
+          # The prohibited character lists to use for SASL string preparation.
+          #
+          # @since 2.6.0
           PROHIBITIED = [
             Tables::A1,
             Tables::C1_2,

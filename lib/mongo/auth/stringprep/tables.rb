@@ -1,7 +1,13 @@
 module Mongo
   module Auth
     module StringPrep
+      # Contains character tables defined by RFC 3454 (string preparation).
+      #
+      # @since 2.6.0
       module Tables
+        # Table A1 as defined by RFC 3454 (string preparation).
+        #
+        # @since 2.6.0
         A1 = [
           0x0221..0x0221,
           0x0234..0x024F,
@@ -401,6 +407,9 @@ module Mongo
           0xE0080..0xEFFFD,
         ].freeze
 
+        # Table B1 as defined by RFC 3454 (string preparation).
+        #
+        # @since 2.6.0
         B1 = {
           0x00AD => [], # Map to nothing
           0x034F => [], # Map to nothing
@@ -430,6 +439,9 @@ module Mongo
           0xFEFF => [], # Map to nothing
         }.freeze
 
+        # Table B2 as defined by RFC 3454 (string preparation).
+        #
+        # @since 2.6.0
         B2 = {
           0x0041 => [0x0061], # Case map
           0x0042 => [0x0062], # Case map
@@ -1804,6 +1816,9 @@ module Mongo
           0x1D7BB => [0x03C3], # Additional folding
         }.freeze
 
+        # Table B3 as defined by RFC 3454 (string preparation).
+        #
+        # @since 2.6.0
         B3 = {
           0x0041 => [0x0061], # Case map
           0x0042 => [0x0062], # Case map
@@ -2645,6 +2660,9 @@ module Mongo
           0x10425 => [0x1044D], # Case map
         }.freeze
 
+        # Table C1.2 as defined by RFC 3454 (string preparation).
+        #
+        # @since 2.6.0
         C1_2 = [
           0x00A0..0x00A0, # NO-BREAK SPACE
           0x1680..0x1680, # OGHAM SPACE MARK
@@ -2665,11 +2683,17 @@ module Mongo
           0x3000..0x3000, # IDEOGRAPHIC SPACE
         ].freeze
 
+        # Table C2.1 as defined by RFC 3454 (string preparation).
+        #
+        # @since 2.6.0
         C2_1 = [
           0x0000..0x001F, # [CONTROL CHARACTERS]
           0x007F..0x007F, # DELETE
         ].freeze
 
+        # Table C2.2 as defined by RFC 3454 (string preparation).
+        #
+        # @since 2.6.0
         C2_2 = [
           0x0080..0x009F, # [CONTROL CHARACTERS]
           0x06DD..0x06DD, # ARABIC END OF AYAH
@@ -2689,12 +2713,18 @@ module Mongo
           0x1D173..0x1D17A, # [MUSICAL CONTROL CHARACTERS]
         ].freeze
 
+        # Table C3 as defined by RFC 3454 (string preparation).
+        #
+        # @since 2.6.0
         C3 = [
           0xE000..0xF8FF, # [PRIVATE USE, PLANE 0]
           0xF0000..0xFFFFD, # [PRIVATE USE, PLANE 15]
           0x100000..0x10FFFD, # [PRIVATE USE, PLANE 16]
         ].freeze
 
+        # Table C4 as defined by RFC 3454 (string preparation).
+        #
+        # @since 2.6.0
         C4 = [
           0xFDD0..0xFDEF, # [NONCHARACTER CODE POINTS]
           0xFFFE..0xFFFF, # [NONCHARACTER CODE POINTS]
@@ -2716,10 +2746,16 @@ module Mongo
           0x10FFFE..0x10FFFF, # [NONCHARACTER CODE POINTS]
         ].freeze
 
+        # Table C5 as defined by RFC 3454 (string preparation).
+        #
+        # @since 2.6.0
         C5 = [
           0xD800..0xDFFF, # [SURROGATE CODES]
         ].freeze
 
+        # Table C6 as defined by RFC 3454 (string preparation).
+        #
+        # @since 2.6.0
         C6 = [
           0xFFF9..0xFFF9, # INTERLINEAR ANNOTATION ANCHOR
           0xFFFA..0xFFFA, # INTERLINEAR ANNOTATION SEPARATOR
@@ -2728,10 +2764,16 @@ module Mongo
           0xFFFD..0xFFFD, # REPLACEMENT CHARACTER
         ].freeze
 
+        # Table C7 as defined by RFC 3454 (string preparation).
+        #
+        # @since 2.6.0
         C7 = [
           0x2FF0..0x2FFB, # [IDEOGRAPHIC DESCRIPTION CHARACTERS]
         ].freeze
 
+        # Table C8 as defined by RFC 3454 (string preparation).
+        #
+        # @since 2.6.0
         C8 = [
           0x0340..0x0340, # COMBINING GRAVE TONE MARK
           0x0341..0x0341, # COMBINING ACUTE TONE MARK
@@ -2750,11 +2792,17 @@ module Mongo
           0x206F..0x206F, # NOMINAL DIGIT SHAPES
         ].freeze
 
+        # Table C9 as defined by RFC 3454 (string preparation).
+        #
+        # @since 2.6.0
         C9 = [
           0xE0001..0xE0001, # LANGUAGE TAG
           0xE0020..0xE007F, # [TAGGING CHARACTERS]
         ].freeze
 
+        # Table D1 as defined by RFC 3454 (string preparation).
+        #
+        # @since 2.6.0
         D1 = [
           0x05BE..0x05BE,
           0x05C0..0x05C0,
@@ -2792,6 +2840,9 @@ module Mongo
           0xFE76..0xFEFC,
         ].freeze
 
+        # Table D2 as defined by RFC 3454 (string preparation).
+        #
+        # @since 2.6.0
         D2 = [
           0x0041..0x005A,
           0x0061..0x007A,
