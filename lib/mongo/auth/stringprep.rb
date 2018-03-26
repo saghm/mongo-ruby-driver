@@ -26,11 +26,11 @@ module Mongo
       end
 
       def check_bidi(out)
-        if out.any? { |c| table_contains?(Tables::C8, c) }
+        if out.each { |c| table_contains?(Tables::C8, c) }
           raise Mongo::Error::StringPrep.new(Error::StringPrep::INVALID_BIDIRECTIONAL)
         end
 
-        if out.any? { |c| table_contains?(Tables::D1, c) }
+        if out.each { |c| table_contains?(Tables::D1, c) }
           unless table_contains?(Tables::D1, out.first) && table_contains?(Tables::D1, out.last)
             raise Mongo::Error::StringPrep.new(Error::StringPrep::INVALID_BIDIRECTIONAL)
           end
@@ -38,8 +38,8 @@ module Mongo
       end
 
       def check_prohibited(out, prohibited)
-        out.any? do |c|
-          prohibited.any? do |table|
+        out.each do |c|
+          prohibited.each do |table|
             if table_contains?(table, c)
               raise Error::StringPrep(Error::StringPrep::PROHIBITED_CHARACTER)
             end
