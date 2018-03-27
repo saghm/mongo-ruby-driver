@@ -2,7 +2,9 @@ require 'mongo/auth/stringprep/tables'
 
 module Mongo
   module Auth
-    # This namespace contains all behavior related to string preparation (RFC 3454).
+    # This namespace contains all behavior related to string preparation (RFC 3454). It's used to
+    # implement SCRAM-SHA-256 authentication, which is usable with MongoDB server versions 4.0 and
+    # newer.
     #
     # @since 2.6.0
     module StringPrep
@@ -20,9 +22,14 @@ module Mongo
       # @param [ Array ] mappings A list of mappings to apply to the data.
       # @param [ Array ] prohibited A list of prohibited character lists to ensure the data doesn't
       #   contain after mapping and normalizing the data. If the mapped and normalized data contains
-      #   a character in one of the lists, prepare will raise an error.
-      # @param [ Hash ] options Optional operations to perform during string preparation. Valid keys
-      #   are :normalize and :bidi.
+      #   a character in one of the lists, this method will raise an error.
+      # @param [ Hash ] options Optional operations to perform during string preparation.
+      #
+      # @option options [ Boolean ] :normalize Whether or not to apply Unicode normalization to the
+      #   data.
+      # @option options [ Boolean ] :bidi Whether or not to ensure that the data contains valid
+      #   bidirectional input. If the option is true and the bidirectional data is invalid, this
+      #   method will raise an error.
       #
       # @since 2.6.0
       def prepare(data, mappings, prohibited, options = {})
