@@ -52,8 +52,8 @@ module Mongo
     # @param [ Server ] server The server this cursor is locked to.
     # @param [ Hash ] options The cursor options.
     #
-    # @option options [ true, false ] :disable_retry Whether to disable retrying on
-    #   error when sending getmores.
+    # @option options [ true, false ] :disable_retry Whether to disable
+    #   retrying on error when sending getMores.
     #
     # @since 2.0.0
     def initialize(view, result, server, options = {})
@@ -198,7 +198,7 @@ module Mongo
       if @options[:disable_retry]
         process(get_more_operation.execute(@server))
       else
-        read_with_retry do
+        read_with_retry(@session) do
           process(get_more_operation.execute(@server))
         end
       end

@@ -20,8 +20,8 @@ require 'mongo/cluster/app_metadata'
 
 module Mongo
 
-  # Represents a group of servers on the server side, either as a single server, a
-  # replica set, or a single or multiple mongos.
+  # Represents a group of servers on the server side, either as a
+  # single server, a replica set, or a single or multiple mongos.
   #
   # @since 2.0.0
   class Cluster
@@ -161,9 +161,16 @@ module Mongo
     #
     # @note Cluster should never be directly instantiated outside of a Client.
     #
-    # @param [ Array<String> ] seeds The addresses of the configured servers.
+    # @note When connecting to a mongodb+srv:// URI, the client expands such a
+    #   URI into a list of servers and passes that list to the Cluster
+    #   constructor. When connecting to a standalone mongod, the Cluster
+    #   constructor receives the corresponding address as an array of one string.
+    #
+    # @param [ Array<String> ] seeds The addresses of the configured servers
     # @param [ Monitoring ] monitoring The monitoring.
-    # @param [ Hash ] options The options.
+    # @param [ Hash ] options Options. Client constructor forwards its
+    #   options to Cluster constructor, although Cluster recognizes
+    #   only a subset of the options recognized by Client.
     #
     # @since 2.0.0
     def initialize(seeds, monitoring, options = Options::Redacted.new)
@@ -505,15 +512,15 @@ module Mongo
 
     private
 
-    def get_session(options = {})
+    def get_session(client, options = {})
       return options[:session].validate!(self) if options[:session]
       if sessions_supported?
-        Session.new(@session_pool.checkout, self, { implicit: true }.merge(options))
+        Session.new(@session_pool.checkout, client, { implicit: true }.merge(options))
       end
     end
 
-    def with_session(options = {})
-      session = get_session(options)
+    def with_session(client, options = {})
+      session = get_session(client, options)
       yield(session)
     ensure
       session.end_session if (session && session.implicit?)

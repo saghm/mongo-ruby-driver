@@ -25,6 +25,7 @@ module Mongo
         #
         # @since 2.0.0
         MAPPINGS = {
+          :transactions => 7,
           :scram_sha_256 => 7,
           :array_filters => 6,
           :op_msg => 6,
@@ -60,12 +61,12 @@ module Mongo
         #
         # @since 2.0.0
         MAPPINGS.each do |name, version|
-          # Determine whether or not the feature is enabled.
+          # Determine whether or not the feature is supported.
           #
           # @example Is a feature enabled?
           #   features.list_collections_enabled?
           #
-          # @return [ true, false ] If the feature is enabled.
+          # @return [ true, false ] Whether the feature is supported.
           #
           # @since 2.0.0
           define_method("#{name}_enabled?") do
@@ -91,14 +92,14 @@ module Mongo
           @address = address
         end
 
-        # Check that there is an overlap between the driver supported wire version range
-        #   and the server wire version range.
+        # Check that there is an overlap between the driver supported wire
+        #   version range and the server wire version range.
         #
         # @example Verify the wire version overlap.
         #   features.check_driver_support!
         #
-        # @raise [ Error::UnsupportedFeatures ] If the wire version range is not covered
-        #   by the driver.
+        # @raise [ Error::UnsupportedFeatures ] If the wire version range is
+        #   not covered by the driver.
         #
         # @since 2.5.1
         def check_driver_support!

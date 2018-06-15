@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'lite_spec_helper'
 
 describe 'SDAM Monitoring' do
   include Mongo::SDAM
@@ -7,7 +7,7 @@ describe 'SDAM Monitoring' do
 
     spec = Mongo::SDAM::Spec.new(file)
 
-    context(spec.description) do
+    context("#{spec.description} (#{file.sub(%r'.*support/sdam_monitoring/', '')})") do
 
       before(:all) do
         @client = Mongo::Client.new([], heartbeat_frequency: 100, connect_timeout: 0.1)

@@ -1,57 +1,84 @@
+# The tests run against a MongoDB cluster which is
+# configured and started externally to the test suite. This allows
+# running the entire test suite against, for example, a standalone
+# mongod as well as a replica set. The flip side to this is the
+# test suite will not work without a running mongo cluster, and
+# tests which are not applicable to or cannot be performed on the
+# running mongo cluster are skipped.
+#
+# Not only does the test suite require an externally launched cluster,
+# the test suite must also be told how the cluster is configured
+# via MONGODB_URI, TOPOLOGY, MONGODB_ADDRESSES, RS_ENABLED, RS_NAME and
+# SHARDED_ENABLED environment variables.
+#
+# The test suite does not validate that it is able to successfully connect
+# to the cluster prior to running the tests. If a connection fails entirely,
+# the clue is generally failures to invoke methods on nil.
+# However, it is also possible to establish a connection to a cluster which
+# is not quite correctly configured. The result is usually a mass of test
+# failures that are indistinguishable from legitimate failures.
+#
+# Additionally some of the tests assume that the seed list (given in
+# MONGODB_URI or MONGODB_ADDRESSES) encompasses all servers in the cluster,
+# and will fail when MONGODB_URI includes only one host of a replica set.
+# It is best to include all hosts of the cluster in MONGODB_URI and
+# MONGODB_ADDRESSES.
+#
+# The test suite seems to have issues connecting to a replica set
+# via IP addresses if the replica set hosts are defined with hostnames
+# (i.e., 127.0.0.1 vs localhost). Try to exactly match the contents of
+# MONGODB_URI and `rs.isMaster()` output, either by adjusting MONGODB_URI
+# or by reconfiguring the replica set.
+#
+# In order to run spec tests, the mongo cluster needs to have failpoints
+# enabled. This is accomplished by starting mongod with the following option:
+#   --setParameter enableTestCommands=1
+#
+# Use the following environment variables to configure the tests:
+#
+# CLIENT_DEBUG: Show debug messages from the client.
+#   CLIENT_DEBUG=1
+#
+# MONGODB_URI: Connection string to use. This must be a valid MongoDB URI;
+# mongodb:// and mongodb+srv:// are both supported.
+# RS_ENABLED and SHARDED_ENABLED are NOT honored if using MONGODB_URI -
+# specify replica set name in the URI and to specify a sharded topology
+# set TOPOLOGY=sharded_cluster environment variable.
+#   MONGODB_URI=mongodb://127.0.0.1:27001/?replicaSet=test
+#   MONGODB_URI=mongodb://127.0.0.1:27001,127.0.0.1:27002/ TOPOLOGY=sharded_cluster
+#
+# MONGODB_ADDRESSES: Specify addresses to connect to. Use RS_ENABLED,
+# RS_NAME and SHARDED_ENABLED to configure the topology.
+#   MONGODB_ADDRESSES=127.0.0.1:27017,127.0.0.1:27018
+#   MONGODB_ADDRESSES=127.0.0.1:27017,127.0.0.1:27018 RS_ENABLED=1
+#   MONGODB_ADDRESSES=127.0.0.1:27017,127.0.0.1:27018 RS_ENABLED=1 RS_NAME=test
+#   MONGODB_ADDRESSES=127.0.0.1:27017,127.0.0.1:27018 SHARDED_ENABLED=1
+#
+# RS_ENABLED: Instruct the test suite to connect to a replica set.
+# RS_ENABLED is only honored when not using MONGODB_URI; to connect to a
+# replica set with MONGODB_URI, specify the replica set name in the URI
+# (despite the Ruby driver performing topology discovery by default, it
+# doesn't do so in the test suite).
+# RS_NAME can be given to specify the replica set name; the default is
+# ruby-driver-rs.
+#   RS_ENABLED=1
+#   RS_ENABLED=1 RS_NAME=test
+#
+# SHARDED_ENABLED: Instruct the test suite to connect to the sharded cluster.
+# Set MONGODB_URI appropriately as well.
+#   SHARDED_ENABLED=1
+
+require 'lite_spec_helper'
+
+# Replica set name can be overridden via replicaSet parameter in MONGODB_URI
+# environment variable or by specifying RS_NAME environment variable when
+# not using MONGODB_URI.
 TEST_SET = 'ruby-driver-rs'
-COVERAGE_MIN = 90
-CURRENT_PATH = File.expand_path(File.dirname(__FILE__))
-SERVER_DISCOVERY_TESTS = Dir.glob("#{CURRENT_PATH}/support/sdam/**/*.yml")
-SDAM_MONITORING_TESTS = Dir.glob("#{CURRENT_PATH}/support/sdam_monitoring/*.yml")
-SERVER_SELECTION_RTT_TESTS = Dir.glob("#{CURRENT_PATH}/support/server_selection/rtt/*.yml")
-SERVER_SELECTION_TESTS = Dir.glob("#{CURRENT_PATH}/support/server_selection/selection/**/*.yml")
-MAX_STALENESS_TESTS = Dir.glob("#{CURRENT_PATH}/support/max_staleness/**/*.yml")
-CRUD_TESTS = Dir.glob("#{CURRENT_PATH}/support/crud_tests/**/*.yml")
-RETRYABLE_WRITES_TESTS = Dir.glob("#{CURRENT_PATH}/support/retryable_writes_tests/**/*.yml")
-COMMAND_MONITORING_TESTS = Dir.glob("#{CURRENT_PATH}/support/command_monitoring/**/*.yml")
-CONNECTION_STRING_TESTS = Dir.glob("#{CURRENT_PATH}/support/connection_string_tests/*.yml")
-DNS_SEEDLIST_DISCOVERY_TESTS = Dir.glob("#{CURRENT_PATH}/support/dns_seedlist_discovery_tests/*.yml")
-GRIDFS_TESTS = Dir.glob("#{CURRENT_PATH}/support/gridfs_tests/*.yml")
-
-if ENV['DRIVERS_TOOLS']
-  CLIENT_CERT_PEM = ENV['DRIVER_TOOLS_CLIENT_CERT_PEM']
-  CLIENT_KEY_PEM = ENV['DRIVER_TOOLS_CLIENT_KEY_PEM']
-  CA_PEM = ENV['DRIVER_TOOLS_CA_PEM']
-  CLIENT_KEY_ENCRYPTED_PEM = ENV['DRIVER_TOOLS_CLIENT_KEY_ENCRYPTED_PEM']
-else
-  SSL_CERTS_DIR = "#{CURRENT_PATH}/support/certificates"
-  CLIENT_PEM = "#{SSL_CERTS_DIR}/client.pem"
-  CLIENT_PASSWORD_PEM = "#{SSL_CERTS_DIR}/password_protected.pem"
-  CA_PEM = "#{SSL_CERTS_DIR}/ca.pem"
-  CRL_PEM = "#{SSL_CERTS_DIR}/crl.pem"
-  CLIENT_KEY_PEM = "#{SSL_CERTS_DIR}/client_key.pem"
-  CLIENT_CERT_PEM = "#{SSL_CERTS_DIR}/client_cert.pem"
-  CLIENT_KEY_ENCRYPTED_PEM = "#{SSL_CERTS_DIR}/client_key_encrypted.pem"
-  CLIENT_KEY_PASSPHRASE = "passphrase"
-end
-
-require 'mongo'
-
-Mongo::Logger.logger = Logger.new($stdout)
-Mongo::Logger.logger.level = Logger::INFO
-Encoding.default_external = Encoding::UTF_8
 
 require 'support/travis'
-require 'support/matchers'
-require 'support/event_subscriber'
 require 'support/authorization'
-require 'support/server_discovery_and_monitoring'
-require 'support/server_selection_rtt'
-require 'support/server_selection'
-require 'support/sdam_monitoring'
-require 'support/crud'
-require 'support/command_monitoring'
-require 'support/connection_string'
-require 'support/gridfs'
 
 RSpec.configure do |config|
-  config.color     = true
-  config.formatter = 'documentation'
   config.include(Authorization)
 
   config.before(:suite) do
@@ -156,6 +183,14 @@ def test_change_streams?
   !BSON::Environment.jruby? && change_stream_enabled? & replica_set?
 end
 
+# Whether transactions can be tested. Transactions are available on server versions 4.0 and higher
+#   and when connected to a replica set.
+#
+# @since 2.6.0
+def test_transactions?
+  transactions_enabled? && replica_set?
+end
+
 # For instances where behaviour is different on different versions, we need to
 # determine in the specs if we are 3.6 or higher.
 #
@@ -201,6 +236,8 @@ def scram_sha_256_enabled?
   $mongo_client ||= initialize_scanned_client!
   $scram_sha_256_enabled ||= $mongo_client.cluster.servers.first.features.scram_sha_256_enabled?
 end
+
+alias :transactions_enabled? :scram_sha_256_enabled?
 
 # Is the test suite running locally (not on Travis).
 #
